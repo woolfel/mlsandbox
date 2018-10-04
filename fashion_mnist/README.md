@@ -21,8 +21,8 @@
 |dense (Dense)               |(None, 128)             |9437312|
 |dropout_1 (Dropout)         |(None, 128)             |0      |
 |dense_1 (Dense)             |(None, 10)              |1290   |
-
-Total params: 10,231,134
-Trainable params: 10,231,134
-Non-trainable params: 0
+|-------------------------------------------------------------|
+|Total params: 10,231,134                                     |
+|Trainable params: 10,231,134                                 |
+|Non-trainable params: 0                                      |
 
