@@ -2,7 +2,7 @@
 
 [Fashion MNIST](https://github.com/zalandoresearch/fashion-mnist) is a good testbench for trying out different NN configurations and hyper parameters. The current setup consistenty achieves 94% test accuracy and 98% training accuracy.
 
-![accuracy graph][(./model_accuracy.png)
+![accuracy graph](./model_accuracy.png)
 ![loss graph](./model_loss.png)
 ![training log](./training_log.png)
 
