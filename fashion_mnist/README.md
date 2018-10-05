@@ -25,3 +25,13 @@
 |Trainable params: 10,231,134                                 |
 |Non-trainable params: 0                                      |
 
+### fashion_trainer_adlr.py ###
+
+This second version adusts the learning rate in the second set of epochs. The purpose for doing this was to reduce the over fitting and increasing test loss.
+
+### Running the Scripts ###
+
+As long as you have the required software installed, you can just run either script with python
+
+python fashion_trainer.py
+
