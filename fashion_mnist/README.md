@@ -28,6 +28,7 @@
 ### fashion_trainer_adlr.py ###
 
 This second version adusts the learning rate in the second set of epochs. The purpose for doing this was to reduce the over fitting and increasing test loss.
+
 ![accuracy graph](./model_adlr_accuracy.png)
 ![loss graph](./model_adlr_loss.png)
 ![training log](./training_log2.png)
