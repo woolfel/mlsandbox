@@ -4,6 +4,8 @@
 
 ![accuracy graph](./model_accuracy.png)
 ![loss graph](./model_loss.png)
+Note where the 2 loss lines cross. That is where the model over fit to the training dataset and loss on the test dataset started to increase.
+
 ![training log](./training_log.png)
 
 
