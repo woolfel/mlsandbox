@@ -12,7 +12,7 @@ from multiprocessing.spawn import prepare
 
 batch_size=500
 num_classes = 10
-epochs = 15
+epochs = 40
 epoch2 = 20
 steps = 60000 / batch_size
 second_lr = 0.00044444
@@ -81,6 +81,7 @@ def createModel():
                   metrics=['accuracy'])
     return model
 
+# the second training run with the unmodified training set will gradually reduce the learning rate
 def calculateLR(epoch):
     drop = 0.000005
     lr = second_lr - (epoch * drop)
@@ -98,20 +99,24 @@ def main():
     
     datagen.fit(x_train)
     print('Learning rate: ', keras.backend.eval(model.optimizer.lr))
+    
+    clr = keras.callbacks.LearningRateScheduler(calculateLR)
+    tensorboard = keras.callbacks.TensorBoard(log_dir='g:/fashionmnist/logs', histogram_freq=2, write_graph=True, write_grads=True, batch_size=4, write_images=True)
+    
     start_time = time.time()
     # calling fit_geneator will use the DataGenerator to modify the images in real-time
     history = model.fit_generator(datagen.flow(x_train, y_train, batch_size=batch_size),
                         steps_per_epoch=steps,
                         epochs=epochs,
+                        callbacks=[tensorboard],
                         validation_data=(x_test, y_test))
     # Set the learning rate to reduce the chance of over fitting
     model.optimizer = keras.optimizers.Adam(second_lr)
-    #model.loss = keras.losses.sparse_categorical_crossentropy
-    model.loss = keras.losses.mean_squared_logarithmic_error
+    model.loss = keras.losses.sparse_categorical_crossentropy
+    #model.loss = keras.losses.mean_squared_logarithmic_error
     print('Learning rate: ', keras.backend.eval(model.optimizer.lr))
     print('Loss: ', model.loss)
     
-    clr = keras.callbacks.LearningRateScheduler(calculateLR)
     # Retrain on the original image set to increase test accuracy
     # Note: if the batch size is too small the loss starts to increase 
     #       and the test accuracy degrades. This suggests the model is
@@ -122,7 +127,7 @@ def main():
               batch_size=800,
               epochs=epoch2,
               verbose=1,
-              callbacks=[clr],
+              callbacks=[clr, tensorboard],
               validation_data=(x_test, y_test))
 
     end_time = time.time()
