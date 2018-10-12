@@ -12,7 +12,7 @@ from multiprocessing.spawn import prepare
 
 batch_size=500
 num_classes = 10
-epochs = 40
+epochs = 15
 epoch2 = 20
 steps = 60000 / batch_size
 second_lr = 0.00044444
@@ -64,16 +64,17 @@ def prepareTrainingData():
 def createModel():
     # Setup the Keras model
     model = keras.Sequential()
-    model.add(keras.layers.Conv2D(196, kernel_size=(2, 2), strides=(1,1), activation='relu', input_shape=input_shape))
-    model.add(keras.layers.Conv2D(256, (2, 2), strides=(1,1), activation='relu'))
-    model.add(keras.layers.MaxPooling2D(pool_size=(2, 2), strides=2))
-    model.add(keras.layers.Conv2D(256, (1, 1), activation='relu'))
-    model.add(keras.layers.Conv2D(512, (2, 2), activation='relu'))
-    model.add(keras.layers.Dropout(0.1589))
-    model.add(keras.layers.Flatten())
-    model.add(keras.layers.Dense(128, activation='relu'))
-    model.add(keras.layers.Dropout(0.5683))
-    model.add(keras.layers.Dense(num_classes, activation='softmax'))
+    model.add(keras.layers.Conv2D(196, kernel_size=(2, 2), strides=(1,1), activation='relu', input_shape=input_shape, name='L1-conv2d'))
+    model.add(keras.layers.Conv2D(256, (2, 2), strides=(1,1), activation='relu',name='L2-conv2d'))
+    model.add(keras.layers.MaxPooling2D(pool_size=(2, 2), strides=2,name='L3-MP'))
+    model.add(keras.layers.Conv2D(256, (1, 1), activation='relu', name='L4-conv2d'))
+    model.add(keras.layers.Conv2D(512, (2, 2), activation='relu', name='L5-conv2d'))
+    model.add(keras.layers.Dropout(0.1589),name='L2-conv2d', name='L6-Drop')
+    model.add(keras.layers.Flatten(), name='L7-Flat')
+    model.add(keras.layers.Dense(128, activation='relu', name='L8-FC'))
+    model.add(keras.layers.Dropout(0.5683), name='L9-Drop')
+    model.add(keras.layers.Dense(num_classes, activation='softmax', name='L10-FC-Output'))
+
     
     # Compile the model
     model.compile(loss=keras.losses.categorical_crossentropy,
