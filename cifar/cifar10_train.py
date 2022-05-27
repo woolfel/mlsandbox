@@ -7,7 +7,9 @@ import os
 
 print(tf.__version__)
 
-checkpoint_path = "training/cp-{epoch:04d}.ckpt"
+# The filename format has the epoch number + accuracy + loss in HDF5 format
+# the reason for using HDF5 format is cross platform compatibility and make it easier to load in other languages
+checkpoint_path = "training/weights.{epoch:02d}-{val_accuracy:.2f}-{val_loss:.2f}.hdf5"
 checkpoint_dir = os.path.dirname(checkpoint_path)
 
 # the benchmark loads the MNIST dataset from tensorflow datasets
@@ -73,7 +75,7 @@ cp_callback = tf.keras.callbacks.ModelCheckpoint(filepath=checkpoint_path,
                                                  monitor='accuracy',
                                                  save_freq='epoch')
 
-model.save_weights(checkpoint_path.format(epoch=0))
+#model.save_weights(checkpoint_path.format(epoch=0))
 
 start_time = time.time()
 
