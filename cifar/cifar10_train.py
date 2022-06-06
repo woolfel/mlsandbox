@@ -9,7 +9,7 @@ print(tf.__version__)
 
 # The filename format has the epoch number + accuracy + loss in HDF5 format
 # the reason for using HDF5 format is cross platform compatibility and make it easier to load in other languages
-checkpoint_path = "training/weights.{epoch:02d}-{val_accuracy:.2f}-{val_loss:.2f}.hdf5"
+checkpoint_path = "training/weights.{epoch:02d}-{val_accuracy:.3f}-{val_loss:.3f}.hdf5"
 checkpoint_dir = os.path.dirname(checkpoint_path)
 
 # the benchmark loads the MNIST dataset from tensorflow datasets
@@ -28,7 +28,7 @@ def normalize_img(image, label):
 
 # you can change the batch size to see how it performs. Larger batch size will stress GPU more
 batch_size = 256
-epoch_count = 10
+epoch_count = 22
 
 ds_train = ds_train.map(
     normalize_img, num_parallel_calls=tf.data.experimental.AUTOTUNE)
