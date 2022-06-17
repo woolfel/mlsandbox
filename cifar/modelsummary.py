@@ -17,6 +17,8 @@ def main():
         print('Loading with args:  ', args)
         model = tf.keras.models.load_model(args[1])
         print(model.summary())
+        #print(' -- the weights --')
+        #print(model.get_weights())
 
 # this is the recommended approach of handling main function
 if __name__ == "__main__":

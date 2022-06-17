@@ -10,7 +10,7 @@ print(tf.__version__)
 
 # The filename format has the epoch number + accuracy + loss in HDF5 format
 # the reason for using HDF5 format is cross platform compatibility and make it easier to load in other languages
-checkpoint_path = "training2/weights.{epoch:02d}-{val_accuracy:.3f}-{val_loss:.3f}.hdf5"
+checkpoint_path = "training2/weights.{epoch:02d}-{val_accuracy:.3f}-{val_loss:.3f}.h5"
 checkpoint_dir = os.path.dirname(checkpoint_path)
 
 def main():
@@ -19,7 +19,7 @@ def main():
     if len(sys.argv) == 1:
         print(' ---------- checkpoints directory ', checkpoint_path)
     else:
-        checkpoint_path = args[1] + "/weights.{epoch:02d}-{val_accuracy:.3f}-{val_loss:.3f}.hdf5"
+        checkpoint_path = args[1] + "/weights.{epoch:02d}-{val_accuracy:.3f}-{val_loss:.3f}.h5"
         print(' ---------- checkpoints directory ', checkpoint_path)
 
     run(checkpoint_path)
@@ -61,13 +61,13 @@ def run(savepath):
 
     model = tf.keras.models.Sequential([
     tf.keras.layers.Conv2D(256, kernel_size=(2, 2), strides=(1,1), activation='relu', input_shape=(32,32,3)),
-    tf.keras.layers.Conv2D(256, (2, 2), strides=(1,1), activation='relu', name='L2_conv2d'),
+    tf.keras.layers.Conv2D(256, kernel_size=(2, 2), strides=(1,1), activation='relu', name='L2_conv2d'),
     tf.keras.layers.MaxPooling2D(pool_size=(2, 2), strides=2, name='L3_MaxP'),
-    tf.keras.layers.Conv2D(256, (1, 1), activation='relu', name='L4_conv2d'),
-    tf.keras.layers.Conv2D(512, (2, 2), activation='relu', name='L5_conv2d'),
+    tf.keras.layers.Conv2D(256, kernel_size=(1, 1), activation='relu', name='L4_conv2d'),
+    tf.keras.layers.Conv2D(512, kernel_size=(2, 2), activation='relu', name='L5_conv2d'),
     tf.keras.layers.MaxPooling2D(pool_size=(2, 2), strides=2, name='L6_MaxP'),
-    tf.keras.layers.Conv2D(256, (1, 1), activation='relu', name='L7_conv2d'),
-    tf.keras.layers.Conv2D(512, (2, 2), activation='relu', name='L8_conv2d'),
+    tf.keras.layers.Conv2D(256, kernel_size=(1, 1), activation='relu', name='L7_conv2d'),
+    tf.keras.layers.Conv2D(512, kernel_size=(2, 2), activation='relu', name='L8_conv2d'),
     tf.keras.layers.Dropout(0.1589, name='L9_Drop'),
     tf.keras.layers.Flatten(name='L10_flat'),
     tf.keras.layers.Dense(128, activation='relu', name='L11_Dense'),
