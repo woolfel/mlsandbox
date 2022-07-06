@@ -1,2 +1,4 @@
-cifar/training*
+cifar/checkpoints/
 /.metadata/
+CheckpointTools/
+tomato_jpg/

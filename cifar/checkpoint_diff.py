@@ -52,7 +52,8 @@ def compare(model1, model2):
 
 # diff is the entry point for comparing the weights of two checkpoint models
 # For now diff will ignore the layer if it's the Input for the model. The reason
-# for skipping the input layer is reduce noise.
+# for skipping the input layer is to reduce noise. The assumption might be
+# wrong and the filters in the input layer makes a significant difference.
 #
 # If the layer is a hidden layer (ie not input)
 # Conv2D(256, (2, 2), strides=(1,1), activation='relu', name='L2_conv2d')
@@ -62,6 +63,7 @@ def compare(model1, model2):
 # 
 def diffConv2D(index, weights1, weights2):
     if index > 0:
+        # We should always have weights for Conv2D, but check to be safe
         if len(weights1) > 0:
             for x in range(len(weights1)):
                 print('  shape=', weights1[x].shape, '\n')
