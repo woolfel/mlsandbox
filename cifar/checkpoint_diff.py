@@ -56,10 +56,13 @@ def compare(model1, model2):
 # wrong and the filters in the input layer makes a significant difference.
 #
 # If the layer is a hidden layer (ie not input)
-# Conv2D(256, (2, 2), strides=(1,1), activation='relu', name='L2_conv2d')
-# shape(2, 2, 256, 256)
-# The first 2 number is the kernel (2,2), the second number is the batch size,
-# third number is the filters. This means changes to batch size change the shape.
+# Layer definition: Conv2D(256, (2, 2), strides=(1,1), activation='relu', name='L2_conv2d')
+# Weight shape: shape(2, 2, 256, 256)
+# The first 2 number is the kernel (2,2), the third number is channels (aka previous layer filter size),
+# forth number is the layer filters. Keras source says input_channel // self.groups
+# https://github.com/keras-team/keras/blob/master/keras/layers/convolutional/base_conv.py line 212. 
+# The // operator is floor division, which means most of the time the value is divided by default group 1.
+#
 # The input is equal to the output from the previous layer
 # the last is the output filter. Note the kernel may be different, so the function has to look
 # at the shape.
@@ -70,10 +73,10 @@ def diffConv2D(index, weights1, weights2):
         if len(weights1) > 0:
             kheight = weights1[0].shape[0]
             kwidth = weights1[0].shape[1]
-            batchsize = weights1[0].shape[2]
+            prevchannels = weights1[0].shape[2]
             filters = weights1[0].shape[3]
             print(' kernel height/width=', kheight, kwidth)
-            print(' batch=', batchsize)
+            print(' channels=', prevchannels)
             print(' filter =', filters)
             for x in range(len(weights1)):
                 print('  shape=', weights1[x].shape, '\n')
