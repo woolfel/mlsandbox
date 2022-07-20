@@ -10,6 +10,8 @@ class Conv2dLayerDelta:
     channels = 0
     filters = 0
     deltaarray = []
+    diffcount = 0
+    paramcount = 0
 
     def __init__(self, layername, kheight, kwidth, channel, filter):
         self.lname = layername
@@ -20,6 +22,12 @@ class Conv2dLayerDelta:
 
     def AddArray(self, data):
         self.deltaarray.append(data)
+
+    def incrementDeltaCount(self):
+        self.diffcount +=1
+    
+    def incrementParamCount(self):
+        self.paramcount +=1
 
     @property
     def name(self):

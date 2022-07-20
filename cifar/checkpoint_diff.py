@@ -76,7 +76,7 @@ def compare(diff, model1, model2):
  the last is the output filter. Note the kernel may be different, so the function has to look
  at the shape.
 
- TODO - for now it's a bunch of nested for loops. Later refactor it and clean it up
+ TODO - for now it's a bunch of nested for loops. Needs to be refactored it and clean it up
 """
 def diffConv2D(diff, index, weights1, weights2):
     if index > 0:
@@ -106,7 +106,7 @@ def diffConv2D(diff, index, weights1, weights2):
                     wdarray2 = h2[w]
                     if hasattr(wdarray1, "__len__"):
                         wlen = len(wdarray1)
-                        print('  width1 : ', wlen)
+                        # print('  width1 : ', wlen)
                         # the width array for deltas based on kernel width
                         wwarray = []
                         wharray.append(wwarray)
@@ -124,14 +124,20 @@ def diffConv2D(diff, index, weights1, weights2):
                                 charray.append(wtarray)
                                 #print(' filter len: ', len(farray1), end=' ')
                                 for nf in range(len(farray1)):
+                                    # the actual weights
+                                    lydelta.incrementParamCount()
                                     wt1 = farray1[nf]
                                     wt2 = farray2[nf]
                                     delta = abs(wt2 - wt1)
                                     float_diff = layerdelta.floatdelta(wt1, wt2, delta)
                                     wtarray.append(float_diff)
                                     #print(' diff : ', wt1, wt2, delta, end=' ')
+                                    if delta > 0:
+                                        lydelta.incrementDeltaCount()
                     else:
-                        print(wdarray1)
+                        #print(wdarray1)
+                        print('')
+            print(' layer diff count: ', lydelta.diffcount, " - total: ", lydelta.paramcount)
 
             for x in range(len(weights1)):
                 print('  shape=', weights1[x].shape, '\n')

@@ -1,5 +1,7 @@
 # TensorFlow and tf.keras
+from audioop import bias
 from turtle import shape
+from sqlalchemy import false
 import tensorflow as tf
 import tensorflow_datasets as tfds
 import time
@@ -59,8 +61,8 @@ def run(savepath):
 
     model = tf.keras.models.Sequential([
     tf.keras.layers.Conv2D(128, kernel_size=(2, 2), strides=(1,1), activation='relu', input_shape=(32,32,3)),
-    tf.keras.layers.Conv2D(128, kernel_size=(2, 2), strides=(1,1), activation='relu', name='L1_conv2d'),
-    tf.keras.layers.Conv2D(128, kernel_size=(2, 2), strides=(1,1), activation='relu', name='L2_conv2d'),
+    tf.keras.layers.Conv2D(128, kernel_size=(2, 2), strides=(1,1), activation='relu', name='L1_conv2d', use_bias=false),
+    tf.keras.layers.Conv2D(128, kernel_size=(2, 2), strides=(1,1), activation='relu', name='L2_conv2d', use_bias=false),
     tf.keras.layers.MaxPooling2D(pool_size=(2, 2), strides=2, name='L3_MaxP'),
     tf.keras.layers.Conv2D(256, kernel_size=(1, 1), activation='relu', name='L4_conv2d'),
     tf.keras.layers.Conv2D(256, kernel_size=(2, 2), activation='relu', name='L5_conv2d'),
