@@ -68,12 +68,12 @@ def run(savepath):
     tf.keras.layers.MaxPooling2D(pool_size=(2, 2), strides=2, name='L6_MaxP'),
     tf.keras.layers.Conv2D(256, kernel_size=(1, 1), activation='relu', name='L7_conv2d'),
     tf.keras.layers.Conv2D(256, kernel_size=(2, 2), activation='relu', name='L8_conv2d'),
-    tf.keras.layers.Dropout(0.289, name='L10_Drop'),
-    tf.keras.layers.Flatten(name='L11_flat'),
-    tf.keras.layers.Dense(128, activation='relu', name='L12_Dense'),
-    tf.keras.layers.Dropout(0.5683, name='L13_Drop'),
+    tf.keras.layers.Dropout(0.289, name='L9_Drop'),
+    tf.keras.layers.Flatten(name='L10_flat'),
+    tf.keras.layers.Dense(128, activation='relu', name='L11_Dense'),
+    tf.keras.layers.Dropout(0.5683, name='L12_Drop'),
     tf.keras.layers.Dense(10, activation='softmax', name='Dense_output')
-    ])
+    ],"cifar-test-2")
 
     model.compile(
         loss='sparse_categorical_crossentropy',

@@ -1,13 +1,18 @@
 from numpy import ndarray
+from sqlalchemy import null
 import tensorflow as tf
 import tensorflow_datasets as tfds
 import time
 import os
 import sys
 import difflib
-from deepdiff import DeepDiff
+import layerdelta
+import modeldelta as md
+import layerdelta
 
 print(tf.__version__)
+
+model_diff = null
 
 # main function to 
 def main():
@@ -20,10 +25,19 @@ def main():
         print('Loading with args:  ', args)
         model1 = tf.keras.models.load_model(args[1])
         model2 = tf.keras.models.load_model(args[2])
-        #print(model1.summary())
-        compare(model1, model2)
+        model_diff = md.ModelDelta(model1.name,args[1], args[2])
+        print(model_diff.name)
+        print(model_diff.modelfile1)
+        print(model_diff.modelfile2)
+        print(' deltas=', model_diff.layerDeltas)
+        compare(model_diff, model1, model2)
 
-def compare(model1, model2):
+""" diff is the entry point for comparing the weights of two checkpoint models
+ For now diff will ignore the layer if it's the Input for the model. The reason
+ for skipping the input layer is to reduce noise. The assumption might be
+ wrong and the filters in the input layer could be significant.
+"""
+def compare(diff, model1, model2):
     print(' ---------- comparing the checkpoints ----------')
     # iterate over a sequential model and do diff
     for index, item in enumerate(model1.layers):
@@ -32,7 +46,7 @@ def compare(model1, model2):
         # switch statement to handle each layer type properly
         if isinstance(item, tf.keras.layers.Conv2D):
             print('Conv2D layer')
-            diffConv2D(index, m1layer.weights, m2layer.weights)
+            diffConv2D(diff, index, m1layer.weights, m2layer.weights)
         elif isinstance(item, tf.keras.layers.MaxPooling2D):
             print('MaxPooling2D layer')
             diffMaxPool(m1layer, m2layer)
@@ -50,24 +64,21 @@ def compare(model1, model2):
         #print(diff)
     print(' --- done with diff')
 
-# diff is the entry point for comparing the weights of two checkpoint models
-# For now diff will ignore the layer if it's the Input for the model. The reason
-# for skipping the input layer is to reduce noise. The assumption might be
-# wrong and the filters in the input layer makes a significant difference.
-#
-# If the layer is a hidden layer (ie not input)
-# Layer definition: Conv2D(256, (2, 2), strides=(1,1), activation='relu', name='L2_conv2d')
-# Weight shape: shape(2, 2, 256, 256)
-# The first 2 number is the kernel (2,2), the third number is channels (aka previous layer filter size),
-# forth number is the layer filters. Keras source says input_channel // self.groups
-# https://github.com/keras-team/keras/blob/master/keras/layers/convolutional/base_conv.py line 212. 
-# The // operator is floor division, which means most of the time the value is divided by default group 1.
-#
-# The input is equal to the output from the previous layer
-# the last is the output filter. Note the kernel may be different, so the function has to look
-# at the shape.
-# 
-def diffConv2D(index, weights1, weights2):
+""" If the layer is not input layer, we compare the weights.
+ Layer definition: Conv2D(256, (2, 2), strides=(1,1), activation='relu', name='L2_conv2d')
+ Weight shape: shape(2, 2, 256, 256)
+ The first 2 number is the kernel (2,2), the third number is channels (aka previous layer filter size),
+ forth number is the layer filters. Keras source for third number has input_channel // self.groups
+ https://github.com/keras-team/keras/blob/master/keras/layers/convolutional/base_conv.py line 212. 
+ The // operator is floor division, which means most of the time the value is divided by default group 1.
+
+ The input is equal to the output from the previous layer
+ the last is the output filter. Note the kernel may be different, so the function has to look
+ at the shape.
+
+ TODO - for now it's a bunch of nested for loops. Later refactor it and clean it up
+"""
+def diffConv2D(diff, index, weights1, weights2):
     if index > 0:
         # We should always have weights for Conv2D, but check to be safe
         if len(weights1) > 0:
@@ -78,6 +89,50 @@ def diffConv2D(index, weights1, weights2):
             print(' kernel height/width=', kheight, kwidth)
             print(' channels=', prevchannels)
             print(' filter =', filters)
+            # Conv2D layers weights have kernel and bias. By default bias is true. It is optional
+            kern1 = weights1[0].numpy()
+            kern2 = weights2[0].numpy()
+            lydelta = layerdelta.Conv2dLayerDelta(weights1[0].name, kheight, kwidth, prevchannels, filters)
+            diff.addLayerDelta(lydelta)
+            #print(lydelta.name)
+            for h in range(kheight):
+                h1 = weights1[h].numpy()
+                h2 = weights2[h].numpy()
+                # the height array for deltas based on kernel height
+                wharray = []
+                lydelta.AddArray(wharray)
+                for w in range(kwidth):
+                    wdarray1 = h1[w]
+                    wdarray2 = h2[w]
+                    if hasattr(wdarray1, "__len__"):
+                        wlen = len(wdarray1)
+                        print('  width1 : ', wlen)
+                        # the width array for deltas based on kernel width
+                        wwarray = []
+                        wharray.append(wwarray)
+                        for nw in range(wlen):
+                            """ this should ndarray of channels """
+                            chlen1 = len(wdarray1[nw])
+                            carray1 = wdarray1[nw]
+                            carray2 = wdarray2[nw]
+                            charray = []
+                            wwarray.append(charray)
+                            for nc in range(chlen1):
+                                farray1 = carray1[nc]
+                                farray2 = carray2[nc]
+                                wtarray = []
+                                charray.append(wtarray)
+                                #print(' filter len: ', len(farray1), end=' ')
+                                for nf in range(len(farray1)):
+                                    wt1 = farray1[nf]
+                                    wt2 = farray2[nf]
+                                    delta = abs(wt2 - wt1)
+                                    float_diff = layerdelta.floatdelta(wt1, wt2, delta)
+                                    wtarray.append(float_diff)
+                                    #print(' diff : ', wt1, wt2, delta, end=' ')
+                    else:
+                        print(wdarray1)
+
             for x in range(len(weights1)):
                 print('  shape=', weights1[x].shape, '\n')
                 nw1 = weights1[x].numpy()
@@ -85,13 +140,6 @@ def diffConv2D(index, weights1, weights2):
                     yarr = nw1[y]
                     inspectArray(yarr,'  ')
                     
-                print('\n')
-            #print(' ----- weights 2 ----- ')
-            #print(weights2[0].numpy)
-            #print(weights2.__class__.__name__)
-            for x in range(len(weights2)):
-                #print('  ', weights2[x], '\n')
-                nw2 = weights2[x].numpy()
     else:
         print('input layer - no need to diff')
 
