@@ -29,8 +29,7 @@ def normalize_img(image, label):
     return tf.cast(image, tf.float32) / 255., label
 
 def run(savepath):
-    # the benchmark loads the MNIST dataset from tensorflow datasets
-    # a possible alternative is fashion MNIST, which should require more power
+    # the benchmark loads the CIFAR10 dataset from tensorflow datasets
     (ds_train, ds_test), ds_info = tfds.load(
         'cifar10',
         split=['train', 'test'],

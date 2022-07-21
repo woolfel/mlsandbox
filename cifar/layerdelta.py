@@ -4,7 +4,7 @@ import floatdelta
 
 class Conv2dLayerDelta:
     type = tf.keras.layers.Conv2D
-    lname = "default"
+    layername = "default"
     layerindex = 0
     height = 0
     width = 0
@@ -16,7 +16,7 @@ class Conv2dLayerDelta:
     deltasum = 0.0
 
     def __init__(self, layername, kheight, kwidth, channel, filter):
-        self.lname = layername
+        self.layername = layername
         self.height = kheight
         self.width = kwidth
         self.channels = channel
@@ -36,5 +36,5 @@ class Conv2dLayerDelta:
 
     @property
     def name(self):
-        return self.lname
+        return self.layername
 

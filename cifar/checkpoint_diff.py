@@ -10,6 +10,7 @@ import layerdelta
 import modeldelta as md
 import layerdelta
 import json
+from encoderextension import json_encode
 
 print(tf.__version__)
 
@@ -32,6 +33,8 @@ def main():
         print(model_diff.modelfile2)
         print(' deltas=', model_diff.layerdeltas)
         compare(model_diff, model1, model2)
+        #jsonstring = json_encode(model_diff)
+        #print(jsonstring)
 
 """ diff is the entry point for comparing the weights of two checkpoint models
  For now diff will ignore the layer if it's the Input for the model. The reason
@@ -56,7 +59,7 @@ def compare(diff, model1, model2):
         elif isinstance(item, tf.keras.layers.Dropout):
             print('Dropout layer')
         elif isinstance(item, tf.keras.layers.Dense):
-            print('Dense layer')
+            diffDense(diff, index, m1layer, m2layer)
         elif isinstance(item, tf.keras.layers.Conv3D):
             print('Conv3D layer')
         else:
@@ -163,6 +166,14 @@ def inspectArray(narrayobj, sep):
             charray = narrayobj[z]
             inspectArray(charray,'')
         print('] ',end='')
+
+""" Keras dense layer has weights and bias. Depending on the model configuration, the layer
+might not have bias.
+"""
+def diffDense(diff, index, layer1, layer2):
+    print(' calculate diff for dense layer')
+    print(layer1.name)
+    print(layer1.weights)
 
 # this is the recommended approach of handling main function
 if __name__ == "__main__":
