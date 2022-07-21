@@ -5,10 +5,11 @@ import tensorflow_datasets as tfds
 import time
 import os
 import sys
-import difflib
+import floatdelta
 import layerdelta
 import modeldelta as md
 import layerdelta
+import json
 
 print(tf.__version__)
 
@@ -29,7 +30,7 @@ def main():
         print(model_diff.name)
         print(model_diff.modelfile1)
         print(model_diff.modelfile2)
-        print(' deltas=', model_diff.layerDeltas)
+        print(' deltas=', model_diff.layerdeltas)
         compare(model_diff, model1, model2)
 
 """ diff is the entry point for comparing the weights of two checkpoint models
@@ -49,7 +50,7 @@ def compare(diff, model1, model2):
             diffConv2D(diff, index, m1layer.weights, m2layer.weights)
         elif isinstance(item, tf.keras.layers.MaxPooling2D):
             print('MaxPooling2D layer')
-            diffMaxPool(m1layer, m2layer)
+            diffMaxPool(diff, index, m1layer, m2layer)
         elif isinstance(item, tf.keras.layers.Flatten):
             print('Flatten layer')
         elif isinstance(item, tf.keras.layers.Dropout):
@@ -64,6 +65,7 @@ def compare(diff, model1, model2):
         #print(diff)
     print(' --- done with diff')
 
+
 """ If the layer is not input layer, we compare the weights.
  Layer definition: Conv2D(256, (2, 2), strides=(1,1), activation='relu', name='L2_conv2d')
  Weight shape: shape(2, 2, 256, 256)
@@ -76,7 +78,7 @@ def compare(diff, model1, model2):
  the last is the output filter. Note the kernel may be different, so the function has to look
  at the shape.
 
- TODO - for now it's a bunch of nested for loops. Needs to be refactored it and clean it up
+ TODO - for now it's a bunch of nested for loops. Needs to be refactored and clean it up
 """
 def diffConv2D(diff, index, weights1, weights2):
     if index > 0:
@@ -129,7 +131,8 @@ def diffConv2D(diff, index, weights1, weights2):
                                     wt1 = farray1[nf]
                                     wt2 = farray2[nf]
                                     delta = abs(wt2 - wt1)
-                                    float_diff = layerdelta.floatdelta(wt1, wt2, delta)
+                                    lydelta.AddDelta(delta)
+                                    float_diff = floatdelta.FloatDelta(wt1, wt2, delta)
                                     wtarray.append(float_diff)
                                     #print(' diff : ', wt1, wt2, delta, end=' ')
                                     if delta > 0:
@@ -137,20 +140,20 @@ def diffConv2D(diff, index, weights1, weights2):
                     else:
                         #print(wdarray1)
                         print('')
-            print(' layer diff count: ', lydelta.diffcount, " - total: ", lydelta.paramcount)
+            print(' layer diff count: ', lydelta.diffcount, " - total: ", lydelta.paramcount, " deltaSum: ", lydelta.deltasum)
 
-            for x in range(len(weights1)):
-                print('  shape=', weights1[x].shape, '\n')
-                nw1 = weights1[x].numpy()
-                for y in range(len(nw1)):
-                    yarr = nw1[y]
-                    inspectArray(yarr,'  ')
+            # for x in range(len(weights1)):
+            #     print('  shape=', weights1[x].shape, '\n')
+            #     nw1 = weights1[x].numpy()
+            #     for y in range(len(nw1)):
+            #         yarr = nw1[y]
+            #         inspectArray(yarr,'  ')
                     
     else:
         print('input layer - no need to diff')
 
-def diffMaxPool(layer1, layer2):
-    print(layer1)
+def diffMaxPool(diff, index, layer1, layer2):
+    print(index)
 
 def inspectArray(narrayobj, sep):
     if hasattr(narrayobj, "__len__"):

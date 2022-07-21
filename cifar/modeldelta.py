@@ -7,12 +7,12 @@ class ModelDelta:
         self.modelname = name
         self.modelfile1 = filename1
         self.modelfile2 = filename2
-        self.layerDeltas = []
+        self.layerdeltas = []
 
     @property
     def name(self):
         return self.modelname
     
     def addLayerDelta(self, delta):
-        self.layerDeltas.append(delta)
+        self.layerdeltas.append(delta)
         

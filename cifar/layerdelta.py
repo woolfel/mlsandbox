@@ -1,5 +1,6 @@
 import tensorflow as tf
 import numpy
+import floatdelta
 
 class Conv2dLayerDelta:
     type = tf.keras.layers.Conv2D
@@ -12,6 +13,7 @@ class Conv2dLayerDelta:
     deltaarray = []
     diffcount = 0
     paramcount = 0
+    deltasum = 0.0
 
     def __init__(self, layername, kheight, kwidth, channel, filter):
         self.lname = layername
@@ -29,16 +31,10 @@ class Conv2dLayerDelta:
     def incrementParamCount(self):
         self.paramcount +=1
 
+    def AddDelta(self, dval):
+        self.deltasum += dval
+
     @property
     def name(self):
         return self.lname
 
-class floatdelta:
-    valueone = 0.0
-    valuetwo = 0.0
-    deltaval = 0.0
-    
-    def __init__(self, valone, valtwo, delval):
-        self.valueone = valone
-        self.valuetwo = valtwo
-        self.deltaval = delval
