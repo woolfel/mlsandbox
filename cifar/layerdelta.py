@@ -14,6 +14,9 @@ class Conv2dLayerDelta:
     diffcount = 0
     paramcount = 0
     deltasum = 0.0
+    biasarray = []
+    biasdiffcount = 0
+    biasdeltasum = 0.0
 
     def __init__(self, layername, kheight, kwidth, channel, filter):
         self.layername = layername
@@ -33,6 +36,12 @@ class Conv2dLayerDelta:
 
     def AddDelta(self, dval):
         self.deltasum += dval
+    
+    def incrementBiasDeltaCount(self):
+        self.biasdiffcount +=1
+    
+    def AddBiasDelta(self, dval):
+        self.biasdeltasum += dval
 
     @property
     def name(self):

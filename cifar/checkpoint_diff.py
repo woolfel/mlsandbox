@@ -151,7 +151,26 @@ def diffConv2D(diff, index, weights1, weights2):
             #     for y in range(len(nw1)):
             #         yarr = nw1[y]
             #         inspectArray(yarr,'  ')
-                    
+
+            if len(weights1) == 2:
+                # bias is just 1 array of floats
+                arraylen = weights1[1].shape[0]
+                print('     shape =', arraylen)
+                bw1 = weights1[1].numpy()
+                bw2 = weights2[1].numpy()
+                deltas = []
+                lydelta.biasarray = deltas
+                for ix in range(arraylen):
+                    w1 = bw1[ix]
+                    w2 = bw2[ix]
+                    delta = abs(w1 - w2)
+                    float_diff = floatdelta.FloatDelta(w1, w2, delta)
+                    deltas.append(float_diff)
+                    lydelta.AddBiasDelta(delta)
+                    if delta > 0:
+                        lydelta.incrementBiasDeltaCount()
+            print(' bias diff count: ', lydelta.biasdiffcount, " deltaSum: ", lydelta.biasdeltasum)
+
     else:
         print('input layer - no need to diff')
 

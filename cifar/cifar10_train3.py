@@ -31,8 +31,7 @@ def normalize_img(image, label):
     return tf.cast(image, tf.float32) / 255., label
 
 def run(savepath):
-    # the benchmark loads the MNIST dataset from tensorflow datasets
-    # a possible alternative is fashion MNIST, which should require more power
+    # the benchmark loads the CIFAR10 dataset from tensorflow datasets
     (ds_train, ds_test), ds_info = tfds.load(
         'cifar10',
         split=['train', 'test'],
@@ -59,6 +58,9 @@ def run(savepath):
     ds_test = ds_test.cache()
     ds_test = ds_test.prefetch(tf.data.experimental.AUTOTUNE)
 
+    # this version turns off bias for the first 2 hidden layers. Turning off bias
+    # reduces the chance of overfitting, but it takes more epochs to reach the
+    # same level of accuracy than with bias on
     model = tf.keras.models.Sequential([
     tf.keras.layers.Conv2D(128, kernel_size=(2, 2), strides=(1,1), activation='relu', input_shape=(32,32,3)),
     tf.keras.layers.Conv2D(128, kernel_size=(2, 2), strides=(1,1), activation='relu', name='L1_conv2d', use_bias=false),
@@ -69,7 +71,7 @@ def run(savepath):
     tf.keras.layers.MaxPooling2D(pool_size=(2, 2), strides=2, name='L6_MaxP'),
     tf.keras.layers.Conv2D(256, kernel_size=(1, 1), activation='relu', name='L7_conv2d'),
     tf.keras.layers.Conv2D(256, kernel_size=(2, 2), activation='relu', name='L8_conv2d'),
-    tf.keras.layers.Dropout(0.289, name='L9_Drop'),
+    tf.keras.layers.Dropout(0.2892, name='L9_Drop'),
     tf.keras.layers.Flatten(name='L10_flat'),
     tf.keras.layers.Dense(128, activation='relu', name='L11_Dense'),
     tf.keras.layers.Dropout(0.5683, name='L12_Drop'),
