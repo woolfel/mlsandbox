@@ -1,3 +1,5 @@
+from textwrap import indent
+from marshmallow import Schema
 from numpy import ndarray
 from sqlalchemy import null
 import tensorflow as tf
@@ -10,7 +12,6 @@ import layerdelta
 import modeldelta as md
 import layerdelta
 import json
-from encoderextension import json_encode
 
 print(tf.__version__)
 
@@ -27,14 +28,19 @@ def main():
         print('Loading with args:  ', args)
         model1 = tf.keras.models.load_model(args[1])
         model2 = tf.keras.models.load_model(args[2])
+        outputfile = args[3]
         model_diff = md.ModelDelta(model1.name,args[1], args[2])
         print(model_diff.name)
         print(model_diff.modelfile1)
         print(model_diff.modelfile2)
         print(' deltas=', model_diff.layerdeltas)
         compare(model_diff, model1, model2)
-        #jsonstring = json_encode(model_diff)
-        #print(jsonstring)
+        modelschema = md.ModelDeltaSchema()
+        jsonresult = modelschema.dumps(model_diff)
+        #print(jsonresult)
+        diffout = open(outputfile,"x")
+        diffout.write(jsonresult)
+        diffout.close()
 
 """ diff is the entry point for comparing the weights of two checkpoint models
  For now diff will ignore the layer if it's the Input for the model. The reason

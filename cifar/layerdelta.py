@@ -1,6 +1,7 @@
 import tensorflow as tf
 import numpy
 import floatdelta
+from marshmallow import Schema, fields
 
 class Conv2dLayerDelta:
     type = tf.keras.layers.Conv2D
@@ -47,3 +48,18 @@ class Conv2dLayerDelta:
     def name(self):
         return self.layername
 
+class Conv2dLayerDeltaSchema(Schema):
+    type = fields.Str()
+    layername = fields.Str()
+    layerindex = fields.Integer()
+    height = fields.Integer()
+    width = fields.Integer()
+    channels = fields.Integer()
+    filters = fields.Integer()
+    deltaarray = fields.List(fields.List(fields.List(fields.List(fields.List(fields.Nested(floatdelta.FloatDeltaSchema))))))
+    diffcount = fields.Integer()
+    paramcount = fields.Integer()
+    deltasum = fields.Float()
+    biasarray = fields.List(fields.Nested(floatdelta.FloatDeltaSchema))
+    biasdiffcount = fields.Integer()
+    biasdeltasum = fields.Float()

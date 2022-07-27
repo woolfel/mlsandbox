@@ -1,4 +1,5 @@
 import tensorflow as tf
+from marshmallow import Schema, fields
 
 class FloatDelta:
     valueone = 0.0
@@ -9,3 +10,8 @@ class FloatDelta:
         self.valueone = valone
         self.valuetwo = valtwo
         self.deltaval = delval
+
+class FloatDeltaSchema(Schema):
+    valueone = fields.Float()
+    valuetwo = fields.Float()
+    deltaval = fields.Float()

@@ -1,5 +1,7 @@
+from msilib import schema
 import tensorflow as tf
 import layerdelta
+from marshmallow import Schema, fields
 
 class ModelDelta:
 
@@ -15,4 +17,9 @@ class ModelDelta:
     
     def addLayerDelta(self, delta):
         self.layerdeltas.append(delta)
-        
+
+class ModelDeltaSchema(Schema):
+    modelname = fields.Str()
+    modelfile1 = fields.Str()
+    modelfile2 = fields.Str()
+    layerdeltas = fields.List(fields.Nested(layerdelta.Conv2dLayerDeltaSchema))
