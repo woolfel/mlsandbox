@@ -2,3 +2,4 @@ cifar/checkpoints/
 /.metadata/
 CheckpointTools/
 tomato_jpg/
+*/__pycache__
