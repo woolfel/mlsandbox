@@ -22,4 +22,4 @@ In cifar folder are some scripts for creating diff between two checkpoint models
 
 4. there's no way to view the layer diff at the moment. the eventual goal is to render the weights, channels and filters difference in a graph.
 
-5. there's no way to save the model diff at the moment. If python's JSON support was better or python language was less silly, this would be easy. I'm working on a custom JSON encoder to write the data to a file
+5. the diff is saved to a file in json format. I am using marshmallow framework to write the data. The past argument should be the output filename
