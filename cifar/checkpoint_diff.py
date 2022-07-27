@@ -105,7 +105,7 @@ def diffConv2D(diff, index, weights1, weights2):
             lydelta = layerdelta.Conv2dLayerDelta(index, weights1[0].name, kheight, kwidth, prevchannels, filters)
             diff.addLayerDelta(lydelta)
             #print(lydelta.name)
-            for h in range(kheight):
+            for h in range(1):
                 #print(' height iterate: ', h)
                 h1 = weights1[h].numpy()
                 h2 = weights2[h].numpy()
@@ -117,7 +117,7 @@ def diffConv2D(diff, index, weights1, weights2):
                     wdarray2 = h2[w]
                     if hasattr(wdarray1, "__len__"):
                         wlen = len(wdarray1)
-                        # print('  width1 : ', wlen)
+                        #print('  width iterate : ', w)
                         # the width array for deltas based on kernel width
                         wwarray = []
                         wharray.append(wwarray)
