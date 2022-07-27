@@ -4,30 +4,27 @@ import floatdelta
 from marshmallow import Schema, fields
 
 class Conv2dLayerDelta:
-    type = tf.keras.layers.Conv2D
-    layername = "default"
-    layerindex = 0
-    height = 0
-    width = 0
-    channels = 0
-    filters = 0
-    deltaarray = []
-    diffcount = 0
-    paramcount = 0
-    deltasum = 0.0
-    biasarray = []
-    biasdiffcount = 0
-    biasdeltasum = 0.0
 
-    def __init__(self, layername, kheight, kwidth, channel, filter):
+    def __init__(self, layerindex, layername, kheight, kwidth, channel, filter):
+        self.index = layerindex
         self.layername = layername
         self.height = kheight
         self.width = kwidth
         self.channels = channel
         self.filters = filter
+        self.type = tf.keras.layers.Conv2D
+        self.layerindex = 0
+        self.deltaarray = []
+        self.diffcount = 0
+        self.paramcount = 0
+        self.deltasum = 0.0
+        self.biasarray = []
+        self.biasdiffcount = 0
+        self.biasdeltasum = 0.0
 
     def AddArray(self, data):
         self.deltaarray.append(data)
+        #print('delta array len: ', len(self.deltaarray))
 
     def incrementDeltaCount(self):
         self.diffcount +=1
@@ -50,6 +47,7 @@ class Conv2dLayerDelta:
 
 class Conv2dLayerDeltaSchema(Schema):
     type = fields.Str()
+    index = fields.Integer()
     layername = fields.Str()
     layerindex = fields.Integer()
     height = fields.Integer()

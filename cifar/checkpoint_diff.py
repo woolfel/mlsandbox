@@ -35,6 +35,7 @@ def main():
         print(model_diff.modelfile2)
         print(' deltas=', model_diff.layerdeltas)
         compare(model_diff, model1, model2)
+        print(' saving diff to file: ', outputfile)
         modelschema = md.ModelDeltaSchema()
         jsonresult = modelschema.dumps(model_diff)
         #print(jsonresult)
@@ -101,12 +102,11 @@ def diffConv2D(diff, index, weights1, weights2):
             print(' channels=', prevchannels)
             print(' filter =', filters)
             # Conv2D layers weights have kernel and bias. By default bias is true. It is optional
-            kern1 = weights1[0].numpy()
-            kern2 = weights2[0].numpy()
-            lydelta = layerdelta.Conv2dLayerDelta(weights1[0].name, kheight, kwidth, prevchannels, filters)
+            lydelta = layerdelta.Conv2dLayerDelta(index, weights1[0].name, kheight, kwidth, prevchannels, filters)
             diff.addLayerDelta(lydelta)
             #print(lydelta.name)
             for h in range(kheight):
+                #print(' height iterate: ', h)
                 h1 = weights1[h].numpy()
                 h2 = weights2[h].numpy()
                 # the height array for deltas based on kernel height
