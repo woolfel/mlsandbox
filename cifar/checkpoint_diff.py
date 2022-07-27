@@ -104,48 +104,48 @@ def diffConv2D(diff, index, weights1, weights2):
             # Conv2D layers weights have kernel and bias. By default bias is true. It is optional
             lydelta = layerdelta.Conv2dLayerDelta(index, weights1[0].name, kheight, kwidth, prevchannels, filters)
             diff.addLayerDelta(lydelta)
-            #print(lydelta.name)
+            #print(weights1)
             for h in range(1):
-                #print(' height iterate: ', h)
                 h1 = weights1[h].numpy()
                 h2 = weights2[h].numpy()
                 # the height array for deltas based on kernel height
                 wharray = []
                 lydelta.AddArray(wharray)
-                for w in range(kwidth):
-                    wdarray1 = h1[w]
-                    wdarray2 = h2[w]
-                    if hasattr(wdarray1, "__len__"):
-                        wlen = len(wdarray1)
-                        #print('  width iterate : ', w)
-                        # the width array for deltas based on kernel width
-                        wwarray = []
-                        wharray.append(wwarray)
-                        for nw in range(wlen):
-                            """ this should ndarray of channels """
-                            chlen1 = len(wdarray1[nw])
-                            carray1 = wdarray1[nw]
-                            carray2 = wdarray2[nw]
-                            charray = []
-                            wwarray.append(charray)
-                            for nc in range(chlen1):
-                                farray1 = carray1[nc]
-                                farray2 = carray2[nc]
-                                wtarray = []
-                                charray.append(wtarray)
-                                #print(' filter len: ', len(farray1), end=' ')
-                                for nf in range(len(farray1)):
-                                    # the actual weights
-                                    lydelta.incrementParamCount()
-                                    wt1 = farray1[nf]
-                                    wt2 = farray2[nf]
-                                    delta = abs(wt2 - wt1)
-                                    lydelta.AddDelta(delta)
-                                    float_diff = floatdelta.FloatDelta(wt1, wt2, delta)
-                                    wtarray.append(float_diff)
-                                    #print(' diff : ', wt1, wt2, delta, end=' ')
-                                    if delta > 0:
-                                        lydelta.incrementDeltaCount()
+                wdarray1 = h1[0]
+                wdarray2 = h2[0]
+                # defensive code to make sure it is an array with len
+                if hasattr(wdarray1, "__len__"):
+                    wlen = len(wdarray1)
+                    # the width array for deltas based on kernel width
+                    #wwarray = []
+                    #wharray.append(wwarray)
+                    for nw in range(wlen):
+                        """ this should ndarray of channels """
+                        #print(' width iterate: ', nw)
+                        chlen1 = len(wdarray1[nw])
+                        carray1 = wdarray1[nw]
+                        carray2 = wdarray2[nw]
+                        charray = []
+                        wharray.append(charray)
+                        for nc in range(chlen1):
+                            # print(' channel iterate: ', nc)
+                            farray1 = carray1[nc]
+                            farray2 = carray2[nc]
+                            wtarray = []
+                            charray.append(wtarray)
+                            #print(' filter len: ', len(farray1), end=' ')
+                            for nf in range(len(farray1)):
+                                # the actual weights
+                                lydelta.incrementParamCount()
+                                wt1 = farray1[nf]
+                                wt2 = farray2[nf]
+                                delta = abs(wt2 - wt1)
+                                lydelta.AddDelta(delta)
+                                float_diff = floatdelta.FloatDelta(wt1, wt2, delta)
+                                wtarray.append(float_diff)
+                                #print(' diff : ', wt1, wt2, delta, end=' ')
+                                if delta > 0:
+                                    lydelta.incrementDeltaCount()
                     else:
                         #print(wdarray1)
                         print('')
@@ -173,6 +173,7 @@ def diffConv2D(diff, index, weights1, weights2):
                     float_diff = floatdelta.FloatDelta(w1, w2, delta)
                     deltas.append(float_diff)
                     lydelta.AddBiasDelta(delta)
+                    lydelta.incrementBiasParamCount()
                     if delta > 0:
                         lydelta.incrementBiasDeltaCount()
             print(' bias diff count: ', lydelta.biasdiffcount, " deltaSum: ", lydelta.biasdeltasum)
@@ -198,7 +199,9 @@ might not have bias.
 def diffDense(diff, index, layer1, layer2):
     print(' calculate diff for dense layer')
     print(layer1.name)
-    print(layer1.weights)
+    #print(layer1.weights)
+    shape = layer1.weights[0].shape
+    print(' dense shape: ', shape)
 
 # this is the recommended approach of handling main function
 if __name__ == "__main__":
