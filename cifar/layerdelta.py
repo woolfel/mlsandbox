@@ -18,10 +18,12 @@ class Conv2dLayerDelta:
         self.diffcount = 0
         self.paramcount = 0
         self.deltasum = 0.0
+        self.deltamax = 0.0
         self.biasarray = []
         self.biasparamcount = 0
         self.biasdiffcount = 0
         self.biasdeltasum = 0.0
+        self.biasdeltamax = 0.0
 
     def AddArray(self, data):
         self.deltaarray.append(data)
@@ -35,12 +37,16 @@ class Conv2dLayerDelta:
 
     def AddDelta(self, dval):
         self.deltasum += dval
+        if dval > self.deltamax:
+            self.deltamax = dval
     
     def incrementBiasDeltaCount(self):
         self.biasdiffcount +=1
     
     def AddBiasDelta(self, dval):
         self.biasdeltasum += dval
+        if dval > self.biasdeltamax:
+            self.biasdeltamax = dval
 
     def incrementBiasParamCount(self):
         self.biasparamcount +=1
@@ -53,7 +59,6 @@ class Conv2dLayerDeltaSchema(Schema):
     type = fields.Str()
     index = fields.Integer()
     layername = fields.Str()
-    layerindex = fields.Integer()
     height = fields.Integer()
     width = fields.Integer()
     channels = fields.Integer()
@@ -62,13 +67,15 @@ class Conv2dLayerDeltaSchema(Schema):
     diffcount = fields.Integer()
     paramcount = fields.Integer()
     deltasum = fields.Float()
+    deltamax = fields.Float()
     biasarray = fields.List(fields.Nested(floatdelta.FloatDeltaSchema))
     biasdiffcount = fields.Integer()
     biasdeltasum = fields.Float()
     biasparamcount = fields.Integer()
+    biasdeltamax = fields.Float()
 
 class DenseLayerDelta:
-    def __init__(self, name, layerindex) -> None:
+    def __init__(self, layerindex, name) -> None:
         self.layername = name
         self.index = layerindex
         self.deltaarray = []
@@ -78,7 +85,22 @@ class DenseLayerDelta:
         self.biasdiffcount = 0
         self.biasdeltasum = 0.0
 
+    def AddArray(self, data):
+        self.deltaarray.append(data)
+        #print('delta array len: ', len(self.deltaarray)) v
+
+    def incrementParamCount(self):
+        self.paramcount += 1
+    
+    def incrementDeltaCount(self):
+        self.diffcount += 1
+
 class DenseLayerDeltaSchema(Schema):
     index = fields.Integer()
     layername = fields.Str()
-    layerindex = fields.Integer()
+    index = fields.Integer()
+    diffcount = fields.Integer()
+    paramcount = fields.Integer()
+    biasdiffcount = fields.Integer()
+    biasdeltasum = fields.Integer()
+    deltaarray = fields.List(fields.List(fields.List(fields.Nested(floatdelta.FloatDeltaSchema))))

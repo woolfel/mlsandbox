@@ -23,7 +23,7 @@ def main():
 
     if len(sys.argv) == 1:
         print('Example usage:')
-        print('               python checkpoint_diff.py ./mymodel1.hdf5 ./mymodel2.hdf5')
+        print('               python checkpoint_diff.py ./mymodel1.hdf5 ./mymodel2.hdf5 result_output.json')
     else:
         print('Loading with args:  ', args)
         model1 = tf.keras.models.load_model(args[1])
@@ -62,9 +62,9 @@ def compare(diff, model1, model2):
             print('MaxPooling2D layer')
             diffMaxPool(diff, index, m1layer, m2layer)
         elif isinstance(item, tf.keras.layers.Flatten):
-            print('Flatten layer')
+            diffFlatten(diff,index, m1layer, m2layer)
         elif isinstance(item, tf.keras.layers.Dropout):
-            print('Dropout layer')
+            diffDropout(diff, index, m1layer, m2layer)
         elif isinstance(item, tf.keras.layers.Dense):
             diffDense(diff, index, m1layer, m2layer)
         elif isinstance(item, tf.keras.layers.Conv3D):
@@ -113,7 +113,7 @@ def diffConv2D(diff, index, weights1, weights2):
                 lydelta.AddArray(wharray)
                 wdarray1 = h1[0]
                 wdarray2 = h2[0]
-                # defensive code to make sure it is an array with len
+                # defensive code to make sure it is an array with len attribute
                 if hasattr(wdarray1, "__len__"):
                     wlen = len(wdarray1)
                     # the width array for deltas based on kernel width
@@ -161,7 +161,7 @@ def diffConv2D(diff, index, weights1, weights2):
             if len(weights1) == 2:
                 # bias is just 1 array of floats
                 arraylen = weights1[1].shape[0]
-                print('     shape =', arraylen)
+                print('  shape =', arraylen)
                 bw1 = weights1[1].numpy()
                 bw2 = weights2[1].numpy()
                 deltas = []
@@ -176,13 +176,13 @@ def diffConv2D(diff, index, weights1, weights2):
                     lydelta.incrementBiasParamCount()
                     if delta > 0:
                         lydelta.incrementBiasDeltaCount()
-            print(' bias diff count: ', lydelta.biasdiffcount, " deltaSum: ", lydelta.biasdeltasum)
+            print(' bias diff count: ', lydelta.biasdiffcount, " - total: ", lydelta.biasparamcount, " deltaSum: ", lydelta.biasdeltasum)
 
     else:
         print('input layer - no need to diff')
 
 def diffMaxPool(diff, index, layer1, layer2):
-    print(index)
+    print(" - maxpool size: ", layer1.pool_size)
 
 def inspectArray(narrayobj, sep):
     if hasattr(narrayobj, "__len__"):
@@ -197,11 +197,69 @@ def inspectArray(narrayobj, sep):
 might not have bias.
 """
 def diffDense(diff, index, layer1, layer2):
-    print(' calculate diff for dense layer')
+    print(' - calculate diff for dense layer')
     print(layer1.name)
-    #print(layer1.weights)
+    # #print(layer1.weights)
     shape = layer1.weights[0].shape
-    print(' dense shape: ', shape)
+    print('  - dense shape: ', shape)
+    weights1 = layer1.weights
+    weights2 = layer2.weights
+    wlen = len(weights1)
+    print('  weights len: ', wlen)
+    denseDelta = layerdelta.DenseLayerDelta(index, layer1.name)
+    diff.addLayerDelta(denseDelta)
+    # # dense layer weights has kernel and bias
+    # kshape = weights1[0].shape
+    # dimen = kshape[0]
+    # weights = kshape[1]
+    # knarray1 = weights1[0]
+    # knarray2 = weights2[0]
+    # deltaarray = []
+    # denseDelta.AddArray(deltaarray)
+    # #print('  weights: ', weights1)
+    # print('  kernarray: ', knarray1)
+    # for x in range(dimen):
+    #     #print(' x: ', x, end=' ')
+    #     dimarray1 = knarray1[x]
+    #     dimarray2 = knarray2[x]
+    #     dimensions = []
+    #     deltaarray.append(dimensions)
+    #     # defensive code to make sure it's an array
+    #     if hasattr(dimarray1, "__len__"):
+    #         nestlen = len(dimarray1)
+    #         #print(' weights length: ', nestlen)
+    #         for y in range(nestlen):
+    #             wt1 = dimarray1[y]
+    #             wt2 = dimarray2[y]
+    #             dval = abs(wt1 - wt2)
+    #             fldelta = floatdelta.FloatDelta(wt1, wt2, dval)
+    #             dimensions.append(fldelta)
+    #             denseDelta.incrementParamCount()
+    #             if dval > 0.0:
+    #                 denseDelta.incrementDeltaCount()
+    # # the bias
+    # if len(weights1) > 1:
+    #     bsarray1 = weights1[1].numpy
+    #     bsarray2 = weights2[1].numpy
+    #     print('  bias array: ', bsarray1)
+
+    # for x in range(wlen):
+    #     print('  shape=', weights1[x].shape, '\n')
+    #     nw1 = weights1[x].numpy()
+    #     for y in range(len(nw1)):
+    #         yarr = nw1[y]
+    #         inspectArray(yarr,'  ')
+    #print('  dense delta: ', len(denseDelta.deltaarray), ' diffcount: ', denseDelta.diffcount)
+
+def diffDropout(diff, index, layer1, layer2):
+    print(' - calculate diff for dropout')
+    print(' layer name: ', layer1.name)
+
+def diffFlatten(diff, index, layer1, layer2):
+    print(' - calculate diff for Flatten')
+    print('  layer name: ', layer1.name)
+    print('  flat weights: ', layer1.weights)
+    
 
 # this is the recommended approach of handling main function
 if __name__ == "__main__":
