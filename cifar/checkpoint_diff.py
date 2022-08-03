@@ -12,6 +12,7 @@ import layerdelta
 import modeldelta as md
 import layerdelta
 import json
+import JsonWriter
 
 print(tf.__version__)
 
@@ -42,6 +43,10 @@ def main():
         diffout = open(outputfile,"x")
         diffout.write(jsonresult)
         diffout.close()
+        teststring = JsonWriter.writeDiffModel(model_diff)
+        testout = open("testfile.json","x")
+        testout.write(teststring)
+        testout.close()
 
 """ diff is the entry point for comparing the weights of two checkpoint models
  For now diff will ignore the layer if it's the Input for the model. The reason

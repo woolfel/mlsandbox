@@ -12,7 +12,7 @@ class Conv2dLayerDelta:
         self.width = kwidth
         self.channels = channel
         self.filters = filter
-        self.type = tf.keras.layers.Conv2D
+        self.type = 'tf.keras.layers.Conv2D'
         self.layerindex = 0
         self.deltaarray = []
         self.diffcount = 0
@@ -78,12 +78,17 @@ class DenseLayerDelta:
     def __init__(self, layerindex, name) -> None:
         self.layername = name
         self.index = layerindex
+        self.type = 'tf.keras.layers.Dense'
         self.deltaarray = []
         self.diffcount = 0
         self.paramcount = 0
+        self.deltasum = 0.0
+        self.deltamax = 0.0
         self.biasarray = []
         self.biasdiffcount = 0
         self.biasdeltasum = 0.0
+        self.biasparamcount = 0
+        self.biasdeltamax = 0.0
 
     def AddArray(self, data):
         self.deltaarray.append(data)
