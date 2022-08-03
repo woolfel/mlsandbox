@@ -35,3 +35,10 @@ In cifar folder are some scripts for creating diff between two checkpoint models
 4. there's no way to view the layer diff at the moment. the eventual goal is to render the weights, channels and filters difference in a graph.
 
 5. the diff is saved to a file in json format. I am using marshmallow framework to write the data. The past argument should be the output filename
+
+## Useful references on Keras
+
+Writing the utility, I had to read the source code and other articles to figure out exactly how Keras weights are structured. The sad reality is the keras documentation is lacking and python culture does not promote clear concise documentation like Javadocs.
+
+[https://towardsdatascience.com/how-to-calculate-the-number-of-parameters-in-keras-models-710683dae0ca] https://towardsdatascience.com/how-to-calculate-the-number-of-parameters-in-keras-models-710683dae0ca
+

@@ -30,21 +30,57 @@ def convertConv2D(conv2ddelta):
     cvdstring = '{"index":' + str(conv2ddelta.index)
     cvdstring += ',"layername":"' + conv2ddelta.layername
     cvdstring += '","type":"' + conv2ddelta.type
-    cvdstring += '","height":"' + str(conv2ddelta.height)
-    cvdstring += '","width":"' + str(conv2ddelta.width)
-    cvdstring += '","channels":"' + str(conv2ddelta.channels)
-    cvdstring += '","filters":"' + str(conv2ddelta.filters)
-    cvdstring += '","diffcount":"' + str(conv2ddelta.diffcount)
-    cvdstring += '","paramcount":"' + str(conv2ddelta.paramcount)
-    cvdstring += '","deltasum":"' + str(conv2ddelta.deltasum)
-    cvdstring += '","deltamax":"' + str(conv2ddelta.deltamax)
-    cvdstring += '","biasdiffcount":"' + str(conv2ddelta.biasdiffcount)
-    cvdstring += '","biasdeltasum":"' + str(conv2ddelta.biasdeltasum)
-    cvdstring += '","biasparamcount":"' + str(conv2ddelta.biasparamcount)
+    cvdstring += '","height":' + str(conv2ddelta.height)
+    cvdstring += ',"width":' + str(conv2ddelta.width)
+    cvdstring += ',"channels":' + str(conv2ddelta.channels)
+    cvdstring += ',"filters":' + str(conv2ddelta.filters)
+    cvdstring += ',"diffcount":' + str(conv2ddelta.diffcount)
+    cvdstring += ',"paramcount":' + str(conv2ddelta.paramcount)
+    cvdstring += ',"deltasum":' + str(conv2ddelta.deltasum)
+    cvdstring += ',"deltamax":' + str(conv2ddelta.deltamax)
+    cvdstring += ',"biasdiffcount":' + str(conv2ddelta.biasdiffcount)
+    cvdstring += ',"biasdeltasum":' + str(conv2ddelta.biasdeltasum)
+    cvdstring += ',"biasparamcount":"' + str(conv2ddelta.biasparamcount)
     cvdstring += '","biasdeltamax":"' + str(conv2ddelta.biasdeltamax)
     cvdstring += '","deltaarray":['
     # the delta array is nested array of arrays
-
+    deltarray = conv2ddelta.deltaarray
+    for h in range(len(deltarray)):
+        harray = deltarray[h]
+        cvdstring += '['
+        for w in range(len(harray)):
+            warray = harray[w]
+            cvdstring += '['
+            for c in range(len(warray)):
+                carray = warray[c]
+                if c > 0:
+                    cvdstring += ','
+                cvdstring += '['
+                for f in range(len(carray)):
+                    fw = carray[f]
+                    if f > 0:
+                        cvdstring += ','
+                    cvdstring += '{'
+                    cvdstring += '"deltavalue":' + str(fw.deltaval)
+                    cvdstring += ',"valueone":' + str(fw.valueone)
+                    cvdstring += ',"valuetwo":' + str(fw.valuetwo)
+                    cvdstring += '}'
+                cvdstring += ']'
+            cvdstring += ']'
+        cvdstring += ']'
+    cvdstring += ']'
+    # the bias array
+    biasarray = conv2ddelta.biasarray
+    cvdstring += ',"biasarray":['
+    for b in range(len(biasarray)):
+        bw = biasarray[b]
+        if b > 0:
+            cvdstring += ','
+        cvdstring += '{'
+        cvdstring += '"deltavalue":' + str(bw.deltaval)
+        cvdstring += ',"valueone":' + str(bw.valueone)
+        cvdstring += ',"valuetwo":' + str(bw.valuetwo)
+        cvdstring += '}'
     cvdstring += ']'
     cvdstring += '}'
     return cvdstring
