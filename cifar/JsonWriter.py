@@ -90,17 +90,17 @@ def convertDense(densedelta):
     dsdstring = '{"index":' + str(densedelta.index)
     dsdstring += ',"layername":"' + densedelta.layername
     dsdstring += '","type":"' + densedelta.type
-    dsdstring += '","diffcount":"' + str(densedelta.diffcount)
-    dsdstring += '","paramcount":"' + str(densedelta.paramcount)
-    dsdstring += '","deltasum":"' + str(densedelta.deltasum)
-    dsdstring += '","deltamax":"' + str(densedelta.deltamax)
-    dsdstring += '","biasdiffcount":"' + str(densedelta.biasdiffcount)
-    dsdstring += '","biasdeltasum":"' + str(densedelta.biasdeltasum)
-    dsdstring += '","biasparamcount":"' + str(densedelta.biasparamcount)
-    dsdstring += '","biasdeltamax":"' + str(densedelta.biasdeltamax)
-    dsdstring += '","deltaarray":['
+    dsdstring += '","diffcount":' + str(densedelta.diffcount)
+    dsdstring += ',"paramcount":' + str(densedelta.paramcount)
+    dsdstring += ',"deltasum":' + str(densedelta.deltasum)
+    dsdstring += ',"deltamax":' + str(densedelta.deltamax)
+    dsdstring += ',"biasdiffcount":' + str(densedelta.biasdiffcount)
+    dsdstring += ',"biasdeltasum":' + str(densedelta.biasdeltasum)
+    dsdstring += ',"biasparamcount":' + str(densedelta.biasparamcount)
+    dsdstring += ',"biasdeltamax":' + str(densedelta.biasdeltamax)
+    dsdstring += ',"deltaarray":['
     # dense layer shape is input and output
-    deltaarray = densedelta.deltaarray
+    deltaarray = densedelta.deltaarray[0]
     print('    convert Dense layer delta: ', len(deltaarray))
     for i in range(len(deltaarray)):
         if i > 0:

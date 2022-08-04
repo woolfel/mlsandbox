@@ -219,15 +219,15 @@ def diffDense(diff, index, layer1, layer2):
     diff.addLayerDelta(denseDelta)
     # dense layer weights has kernel and bias
     kshape = weights1[0].shape
-    dimen = kshape[0]
-    weights = kshape[1]
+    inputs = kshape[0]
+    outputs = kshape[1]
     knarray1 = weights1[0]
     knarray2 = weights2[0]
     deltaarray = []
     denseDelta.AddArray(deltaarray)
     #print('  weights: ', weights1)
-    print('  kernarray: ', knarray1)
-    for x in range(dimen):
+    #print('  kernarray: ', knarray1)
+    for x in range(inputs):
         #print(' x: ', x, end=' ')
         dimarray1 = knarray1[x]
         dimarray2 = knarray2[x]
@@ -238,12 +238,14 @@ def diffDense(diff, index, layer1, layer2):
             nestlen = len(dimarray1)
             #print(' weights length: ', nestlen)
             for y in range(nestlen):
-                wt1 = dimarray1[y]
-                wt2 = dimarray2[y]
+                wt1 = tf.get_static_value(dimarray1[y])
+                wt2 = tf.get_static_value(dimarray2[y])
                 dval = abs(wt1 - wt2)
                 fldelta = floatdelta.FloatDelta(wt1, wt2, dval)
                 dimensions.append(fldelta)
+                #print('  -- delta: ', dval)
                 denseDelta.incrementParamCount()
+                denseDelta.AddDelta(dval)
                 if dval > 0.0:
                     denseDelta.incrementDeltaCount()
     # the bias

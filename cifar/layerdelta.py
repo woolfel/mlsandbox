@@ -95,10 +95,15 @@ class DenseLayerDelta:
         #print('delta array len: ', len(self.deltaarray)) v
 
     def incrementParamCount(self):
-        self.paramcount += 1
+        self.paramcount +=1
     
     def incrementDeltaCount(self):
-        self.diffcount += 1
+        self.diffcount +=1
+
+    def AddDelta(self, dval):
+        self.deltasum += dval
+        if dval > self.deltamax:
+            self.deltamax = dval
 
 class DenseLayerDeltaSchema(Schema):
     index = fields.Integer()
