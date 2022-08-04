@@ -37,12 +37,11 @@ def main():
         print(' deltas=', model_diff.layerdeltas)
         compare(model_diff, model1, model2)
         print(' saving diff to file: ', outputfile)
-        modelschema = md.ModelDeltaSchema()
-        jsonresult = modelschema.dumps(model_diff)
-        #print(jsonresult)
-        diffout = open(outputfile,"x")
-        diffout.write(jsonresult)
-        diffout.close()
+        # modelschema = md.ModelDeltaSchema()
+        # jsonresult = modelschema.dumps(model_diff)
+        # diffout = open(outputfile,"x")
+        # diffout.write(jsonresult)
+        # diffout.close()
         teststring = JsonWriter.writeDiffModel(model_diff)
         testout = open("testfile.json","x")
         testout.write(teststring)
@@ -103,9 +102,9 @@ def diffConv2D(diff, index, weights1, weights2):
             kwidth = weights1[0].shape[1]
             prevchannels = weights1[0].shape[2]
             filters = weights1[0].shape[3]
-            print(' kernel height/width=', kheight, kwidth)
-            print(' channels=', prevchannels)
-            print(' filter =', filters)
+            #print(' kernel height/width=', kheight, kwidth)
+            #print(' channels=', prevchannels)
+            #print(' filter =', filters)
             # Conv2D layers weights have kernel and bias. By default bias is true. It is optional
             lydelta = layerdelta.Conv2dLayerDelta(index, weights1[0].name, kheight, kwidth, prevchannels, filters)
             diff.addLayerDelta(lydelta)
@@ -156,13 +155,6 @@ def diffConv2D(diff, index, weights1, weights2):
                         print('')
             print(' layer diff count: ', lydelta.diffcount, " - total: ", lydelta.paramcount, " deltaSum: ", lydelta.deltasum)
 
-            # for x in range(len(weights1)):
-            #     print('  shape=', weights1[x].shape, '\n')
-            #     nw1 = weights1[x].numpy()
-            #     for y in range(len(nw1)):
-            #         yarr = nw1[y]
-            #         inspectArray(yarr,'  ')
-
             if len(weights1) == 2:
                 # bias is just 1 array of floats
                 arraylen = weights1[1].shape[0]
@@ -183,9 +175,21 @@ def diffConv2D(diff, index, weights1, weights2):
                         lydelta.incrementBiasDeltaCount()
             print(' bias diff count: ', lydelta.biasdiffcount, " - total: ", lydelta.biasparamcount, " deltaSum: ", lydelta.biasdeltasum)
 
+            # for x in range(len(weights1)):
+            #     print('  shape=', weights1[x].shape, '\n')
+            #     nw1 = weights1[x].numpy()
+            #     for y in range(len(nw1)):
+            #         yarr = nw1[y]
+            #         inspectArray(yarr,'  ')
+
     else:
         print('input layer - no need to diff')
 
+# not sure there's a benefit to calculating diff for max pooling
+# the purpose of pooling is to reduce the dimension, which in theory
+# filters out noise and improves accuracy. The parameter count for
+# maxpooling and flatten both are zero. The official Keras documentation
+# page is https://keras.io/api/layers/pooling_layers/max_pooling2d/
 def diffMaxPool(diff, index, layer1, layer2):
     print(" - maxpool size: ", layer1.pool_size)
 
@@ -213,40 +217,40 @@ def diffDense(diff, index, layer1, layer2):
     print('  weights len: ', wlen)
     denseDelta = layerdelta.DenseLayerDelta(index, layer1.name)
     diff.addLayerDelta(denseDelta)
-    # # dense layer weights has kernel and bias
-    # kshape = weights1[0].shape
-    # dimen = kshape[0]
-    # weights = kshape[1]
-    # knarray1 = weights1[0]
-    # knarray2 = weights2[0]
-    # deltaarray = []
-    # denseDelta.AddArray(deltaarray)
-    # #print('  weights: ', weights1)
-    # print('  kernarray: ', knarray1)
-    # for x in range(dimen):
-    #     #print(' x: ', x, end=' ')
-    #     dimarray1 = knarray1[x]
-    #     dimarray2 = knarray2[x]
-    #     dimensions = []
-    #     deltaarray.append(dimensions)
-    #     # defensive code to make sure it's an array
-    #     if hasattr(dimarray1, "__len__"):
-    #         nestlen = len(dimarray1)
-    #         #print(' weights length: ', nestlen)
-    #         for y in range(nestlen):
-    #             wt1 = dimarray1[y]
-    #             wt2 = dimarray2[y]
-    #             dval = abs(wt1 - wt2)
-    #             fldelta = floatdelta.FloatDelta(wt1, wt2, dval)
-    #             dimensions.append(fldelta)
-    #             denseDelta.incrementParamCount()
-    #             if dval > 0.0:
-    #                 denseDelta.incrementDeltaCount()
-    # # the bias
-    # if len(weights1) > 1:
-    #     bsarray1 = weights1[1].numpy
-    #     bsarray2 = weights2[1].numpy
-    #     print('  bias array: ', bsarray1)
+    # dense layer weights has kernel and bias
+    kshape = weights1[0].shape
+    dimen = kshape[0]
+    weights = kshape[1]
+    knarray1 = weights1[0]
+    knarray2 = weights2[0]
+    deltaarray = []
+    denseDelta.AddArray(deltaarray)
+    #print('  weights: ', weights1)
+    print('  kernarray: ', knarray1)
+    for x in range(dimen):
+        #print(' x: ', x, end=' ')
+        dimarray1 = knarray1[x]
+        dimarray2 = knarray2[x]
+        dimensions = []
+        deltaarray.append(dimensions)
+        # defensive code to make sure it's an array
+        if hasattr(dimarray1, "__len__"):
+            nestlen = len(dimarray1)
+            #print(' weights length: ', nestlen)
+            for y in range(nestlen):
+                wt1 = dimarray1[y]
+                wt2 = dimarray2[y]
+                dval = abs(wt1 - wt2)
+                fldelta = floatdelta.FloatDelta(wt1, wt2, dval)
+                dimensions.append(fldelta)
+                denseDelta.incrementParamCount()
+                if dval > 0.0:
+                    denseDelta.incrementDeltaCount()
+    # the bias
+    if len(weights1) > 1:
+        bsarray1 = weights1[1].numpy
+        bsarray2 = weights2[1].numpy
+        #print('  bias array: ', bsarray1)
 
     # for x in range(wlen):
     #     print('  shape=', weights1[x].shape, '\n')
@@ -254,6 +258,7 @@ def diffDense(diff, index, layer1, layer2):
     #     for y in range(len(nw1)):
     #         yarr = nw1[y]
     #         inspectArray(yarr,'  ')
+
     #print('  dense delta: ', len(denseDelta.deltaarray), ' diffcount: ', denseDelta.diffcount)
 
 def diffDropout(diff, index, layer1, layer2):

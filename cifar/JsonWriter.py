@@ -26,7 +26,7 @@ def writeDiffModel(modeldelta):
 
 # function for converting Conv2dLayerDelta object
 def convertConv2D(conv2ddelta):
-    print('    convert Conv2D layer delta')
+    #print('    convert Conv2D layer delta')
     cvdstring = '{"index":' + str(conv2ddelta.index)
     cvdstring += ',"layername":"' + conv2ddelta.layername
     cvdstring += '","type":"' + conv2ddelta.type
@@ -87,7 +87,6 @@ def convertConv2D(conv2ddelta):
 
 # function for converting DenseLayerDelta object
 def convertDense(densedelta):
-    print('    convert Dense layer delta')
     dsdstring = '{"index":' + str(densedelta.index)
     dsdstring += ',"layername":"' + densedelta.layername
     dsdstring += '","type":"' + densedelta.type
@@ -100,6 +99,27 @@ def convertDense(densedelta):
     dsdstring += '","biasparamcount":"' + str(densedelta.biasparamcount)
     dsdstring += '","biasdeltamax":"' + str(densedelta.biasdeltamax)
     dsdstring += '","deltaarray":['
+    # dense layer shape is input and output
+    deltaarray = densedelta.deltaarray
+    print('    convert Dense layer delta: ', len(deltaarray))
+    for i in range(len(deltaarray)):
+        if i > 0:
+            dsdstring += ','
+        iarray = deltaarray[i]
+        dsdstring += '['
+        # iterate over the 
+        for o in range(len(iarray)):
+            if o > 0:
+                dsdstring += ','
+            diff = iarray[o]
+            dsdstring += '['
+            dsdstring += '{'
+            dsdstring += '"deltavalue":' + str(diff.deltaval)
+            dsdstring += ',"valueone":' + str(diff.valueone)
+            dsdstring += ',"valuetwo":' + str(diff.valuetwo)
+            dsdstring += '}'
+            dsdstring += ']'
+        dsdstring += ']'
     dsdstring += ']'
     dsdstring += '}'
     return dsdstring
