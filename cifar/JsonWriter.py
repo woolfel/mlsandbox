@@ -112,13 +112,11 @@ def convertDense(densedelta):
             if o > 0:
                 dsdstring += ','
             diff = iarray[o]
-            dsdstring += '['
             dsdstring += '{'
             dsdstring += '"deltavalue":' + str(diff.deltaval)
             dsdstring += ',"valueone":' + str(diff.valueone)
             dsdstring += ',"valuetwo":' + str(diff.valuetwo)
             dsdstring += '}'
-            dsdstring += ']'
         dsdstring += ']'
     dsdstring += ']'
     dsdstring += '}'
