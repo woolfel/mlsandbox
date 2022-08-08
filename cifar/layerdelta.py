@@ -3,6 +3,13 @@ import numpy
 import floatdelta
 from marshmallow import Schema, fields
 
+# The initial attempt at serializing the data to JSON used Marshmallow, but 
+# that ended up with limitations. Basically, it didn't work for generic lists
+# of layer diff. Eventually marshamallow will be removed, since it doesn't
+# work the way we want.
+
+# Diff object encapsulates the difference between a single layer for two checkpoints
+# it has array for the weight and bias dif and some basic stats
 class Conv2dLayerDelta:
 
     def __init__(self, layerindex, layername, kheight, kwidth, channel, filter):
@@ -55,6 +62,7 @@ class Conv2dLayerDelta:
     def name(self):
         return self.layername
 
+# this will be removed in the future
 class Conv2dLayerDeltaSchema(Schema):
     type = fields.Str()
     index = fields.Integer()
@@ -116,7 +124,7 @@ class DenseLayerDelta:
     def incrementBiasParamCount(self):
         self.biasparamcount +=1
 
-
+# this will be removed in the future
 class DenseLayerDeltaSchema(Schema):
     index = fields.Integer()
     layername = fields.Str()
