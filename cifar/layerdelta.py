@@ -105,6 +105,18 @@ class DenseLayerDelta:
         if dval > self.deltamax:
             self.deltamax = dval
 
+    def AddBiasDelta(self, dval):
+        self.biasdeltasum += dval
+        if dval > self.biasdeltamax:
+            self.biasdeltamax = dval
+
+    def incrementBiasDeltaCount(self):
+        self.biasdiffcount +=1
+
+    def incrementBiasParamCount(self):
+        self.biasparamcount +=1
+
+
 class DenseLayerDeltaSchema(Schema):
     index = fields.Integer()
     layername = fields.Str()

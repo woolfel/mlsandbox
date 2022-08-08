@@ -119,5 +119,18 @@ def convertDense(densedelta):
             dsdstring += '}'
         dsdstring += ']'
     dsdstring += ']'
+    dsdstring += ',"biasarray":['
+    # the bias weights
+    biasarray = densedelta.biasarray
+    for b in range(len(biasarray)):
+        bw = biasarray[b]
+        if b > 0:
+            dsdstring += ','
+        dsdstring += '{'
+        dsdstring += '"deltavalue":' + str(bw.deltaval)
+        dsdstring += ',"valueone":' + str(bw.valueone)
+        dsdstring += ',"valuetwo":' + str(bw.valuetwo)
+        dsdstring += '}'
+    dsdstring += ']'
     dsdstring += '}'
     return dsdstring

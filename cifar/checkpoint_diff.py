@@ -34,18 +34,24 @@ def main():
         print(model_diff.name)
         print(model_diff.modelfile1)
         print(model_diff.modelfile2)
-        print(' deltas=', model_diff.layerdeltas)
+        #print(' deltas=', model_diff.layerdeltas)
+        start_time = time.time()
         compare(model_diff, model1, model2)
+        end_time = time.time();
+        print('  diff time: ', end_time - start_time, " seconds")
         print(' saving diff to file: ', outputfile)
         # modelschema = md.ModelDeltaSchema()
         # jsonresult = modelschema.dumps(model_diff)
         # diffout = open(outputfile,"x")
         # diffout.write(jsonresult)
         # diffout.close()
+        write_start = time.time()
         teststring = JsonWriter.writeDiffModel(model_diff)
-        testout = open("testfile.json","x")
+        testout = open(outputfile,"x")
         testout.write(teststring)
         testout.close()
+        write_end = time.time()
+        print('  write time: ', write_end - write_start, " seconds")
 
 """ diff is the entry point for comparing the weights of two checkpoint models
  For now diff will ignore the layer if it's the Input for the model. The reason
@@ -108,7 +114,6 @@ def diffConv2D(diff, index, weights1, weights2):
             # Conv2D layers weights have kernel and bias. By default bias is true. It is optional
             lydelta = layerdelta.Conv2dLayerDelta(index, weights1[0].name, kheight, kwidth, prevchannels, filters)
             diff.addLayerDelta(lydelta)
-            #print(weights1)
             for h in range(1):
                 h1 = weights1[h].numpy()
                 h2 = weights2[h].numpy()
@@ -250,9 +255,22 @@ def diffDense(diff, index, layer1, layer2):
                     denseDelta.incrementDeltaCount()
     # the bias
     if len(weights1) > 1:
-        bsarray1 = weights1[1].numpy
-        bsarray2 = weights2[1].numpy
-        #print('  bias array: ', bsarray1)
+        arraylen = weights1[1].shape[0]
+        bw1 = weights1[1].numpy()
+        bw2 = weights2[1].numpy()
+        deltas = []
+        denseDelta.biasarray = deltas
+        print('    - bias length: ', arraylen)
+        for ix in range(arraylen):
+            w1 = bw1[ix]
+            w2 = bw2[ix]
+            delta = abs(w1 - w2)
+            float_diff = floatdelta.FloatDelta(w1, w2, delta)
+            deltas.append(float_diff)
+            denseDelta.AddBiasDelta(delta)
+            denseDelta.incrementBiasParamCount()
+            if delta > 0:
+                denseDelta.incrementBiasDeltaCount()
 
     # for x in range(wlen):
     #     print('  shape=', weights1[x].shape, '\n')
